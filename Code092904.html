@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Assignment Transformation Tool</title>
+
+    <!-- Basic CSS Styling -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form, .output {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        select, input[type="file"], textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output {
+            display: none;
+        }
+
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group label {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Writing Assignment Transformation Tool</h1>
+
+    <!-- Dropdown for Grade/Year -->
+    <form id="uploadForm">
+        <label for="gradeLevel">Select Grade/Year:</label>
+        <select id="gradeLevel">
+            <option value="elementary">Elementary (Grades 1-5)</option>
+            <option value="middle">Middle School (Grades 6-8)</option>
+            <option value="high">High School (Grades 9-12)</option>
+            <option value="college">College/University</option>
+        </select>
+
+        <!-- Dropdown for Subject/Topic and Custom Input -->
+        <label for="subject">Select Subject/Topic:</label>
+        <select id="subject">
+            <option value="literature">Literature</option>
+            <option value="history">History</option>
+            <option value="science">Science</option>
+            <option value="engineering">Engineering/Technology</option>
+        </select>
+
+        <!-- Text Area for Custom Subject/Topic Input -->
+        <label for="customSubject">Or Enter a Custom Subject/Topic:</label>
+        <textarea id="customSubject" rows="2" placeholder="Enter custom subject or topic..."></textarea>
+
+        <!-- Checkboxes for Multiple Writing Assistance -->
+        <label>Select Writing Assistance (Choose Multiple):</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="writingAssistance" value="brainstorm"> Brainstorm Ideas</label>
+            <label><input type="checkbox" name="writingAssistance" value="clarity"> Improve Clarity and Conciseness</label>
+            <label><input type="checkbox" name="writingAssistance" value="argumentation"> Strengthen Argumentation</label>
+            <label><input type="checkbox" name="writingAssistance" value="transitions"> Develop Transitions</label>
+            <label><input type="checkbox" name="writingAssistance" value="gaps"> Identify Gaps in Analysis</label>
+            <label><input type="checkbox" name="writingAssistance" value="evidence"> Cite Evidence</label>
+            <label><input type="checkbox" name="writingAssistance" value="creativity"> Enhance Creativity</label>
+            <label><input type="checkbox" name="writingAssistance" value="bias"> Check for Bias</label>
+            <label><input type="checkbox" name="writingAssistance" value="visual_aids"> Create Visual Aids</label>
+        </div>
+
+        <!-- Text Area for Custom Writing Assistance -->
+        <label for="customAssistance">Add Your Own Writing Assistance Request:</label>
+        <textarea id="customAssistance" rows="3" placeholder="Enter your custom writing assistance request here..."></textarea>
+
+        <label for="assignmentFile">Upload your assignment (Text File):</label>
+        <input type="file" id="assignmentFile" accept=".txt, .doc, .docx">
+
+        <button type="button" onclick="handleFileUpload()">Upload and Transform Assignment</button>
+    </form>
+
+    <div class="output" id="outputSection">
+        <h2>Transformed Assignment</h2>
+        <textarea id="transformedAssignment" rows="10" cols="50" readonly></textarea>
+        <button onclick="downloadTransformedAssignment()">Download Assignment</button>
+    </div>
+
+    <script>
+        // Function to handle the file upload and apply selections
+        function handleFileUpload() {
+            const gradeLevel = document.getElementById('gradeLevel').value;
+
+            // Get selected or custom subject/topic
+            const subject = document.getElementById('subject').value;
+            const customSubject = document.getElementById('customSubject').value || subject;
+
+            const fileInput = document.getElementById('assignmentFile');
+            const file = fileInput.files[0];
+
+            // Get the selected writing assistance options (multiple selections)
+            const writingAssistance = [];
+            const checkboxes = document.querySelectorAll('input[name="writingAssistance"]:checked');
+            checkboxes.forEach((checkbox) => {
+                writingAssistance.push(checkbox.value);
+            });
+
+            // Get the custom writing assistance input
+            const customAssistance = document.getElementById('customAssistance').value;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const assignmentContent = e.target.result;
+                    transformAssignment(assignmentContent, gradeLevel, customSubject, writingAssistance, customAssistance);
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please upload a file.');
+            }
+        }
+
+        // Function to transform the assignment content based on dropdown and checkbox selections
+        function transformAssignment(assignmentContent, gradeLevel, customSubject, writingAssistance, customAssistance) {
+            let transformedContent = `Original Assignment (Grade: ${gradeLevel}, Subject: ${customSubject}):\n\n${assignmentContent}\n\n`;
+            transformedContent += `AI-Guided Prompts for Academic Essay:\n\n`;
+
+            if (writingAssistance.includes('brainstorm')) {
+                transformedContent += "1. Use the LLM model to brainstorm ideas for your essay topic.\n";
+            }
+            if (writingAssistance.includes('clarity')) {
+                transformedContent += "2. Ask the LLM model to improve clarity and conciseness of your writing.\n";
+            }
+            if (writingAssistance.includes('argumentation')) {
+                transformedContent += "3. Ask the LLM model to strengthen the argumentation in your essay.\n";
+            }
+            if (writingAssistance.includes('transitions')) {
+                transformedContent += "4. Use the LLM model to develop smoother transitions between paragraphs.\n";
+            }
+            if (writingAssistance.includes('gaps')) {
+                transformedContent += "5. Ask the LLM model to identify any gaps in your analysis.\n";
+            }
+            if (writingAssistance.includes('evidence')) {
+                transformedContent += "6. Use the LLM model to help cite relevant evidence for your essay.\n";
+            }
+            if (writingAssistance.includes('creativity')) {
+                transformedContent += "7. Ask the LLM model to enhance the creativity in your essay.\n";
+            }
+            if (writingAssistance.includes('bias')) {
+                transformedContent += "8. Ask the LLM model to check for bias in your argument.\n";
+            }
+            if (writingAssistance.includes('visual_aids')) {
+                transformedContent += "9. Use the LLM model to help create visual aids, such as charts or graphs, for your essay.\n";
+            }
+
+            if (customAssistance) {
+                transformedContent += `\nCustom Request: ${customAssistance}\n`;
+            }
+
+            document.getElementById('transformedAssignment').value = transformedContent;
+            document.getElementById('outputSection').style.display = 'block';
+        }
+
+        // Function to download the transformed assignment
+        function downloadTransformedAssignment() {
+            const content = document.getElementById('transformedAssignment').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'transformed_assignment.txt';
+            link.click();
+        }
+    </script>
+</body>
+</html>
